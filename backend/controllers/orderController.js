@@ -73,4 +73,4 @@ const userOrders = async (req,res) =>{
     }
 }
 
-export { placeOrder,verifyOrder,userOrders };
+export { placeOrder,verifyOrder,userOrders};
