@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import './PlaceOrder.css';
 import { StoreContext } from '../../context/StoreContext';
+import { useNavigate } from 'react-router-dom';
 
 const PlaceOrder = () => {
     const { getTotalCartAmount, token, food_list, cartItems, url } = useContext(StoreContext);
@@ -17,6 +18,7 @@ const PlaceOrder = () => {
         country: "",
         phone: ""
     });
+
 
     const onChangeHandler = (event) => {
         const name = event.target.name;
@@ -38,7 +40,7 @@ const PlaceOrder = () => {
         let orderData = {
             address: data,
             items: orderItems,
-            amount: getTotalCartAmount() + 1,
+            amount: getTotalCartAmount() + 99,
         };
 
         try {
@@ -48,13 +50,13 @@ const PlaceOrder = () => {
 
                 const options = {
                     key: key_id,
-                    amount: amount,
+                    amount: amount * 100, // Convert to paise (required by Razorpay)
                     currency: currency,
                     name: "Your Store",
                     description: "Order Description",
                     order_id: orderId,
                     handler: function (response) {
-                        window.location.href = `${frontend_url}/verify?success=true&orderId=${orderId}&paymentId=${response.razorpay_payment_id}`;
+                        window.location.href = `<span class="math-inline">\{frontend\_url\}/verify?success\=true&orderId\=</span>{orderId}&paymentId=${response.razorpay_payment_id}`;
                     },
                     prefill: {
                         name: data.firstName + ' ' + data.lastName,
@@ -76,6 +78,17 @@ const PlaceOrder = () => {
             alert("Payment error!");
         }
     };
+
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/cart')
+        } else if (getTotalCartAmount() === 0) {
+            navigate('/cart')
+        }
+    }, [token])
 
     return (
         <form onSubmit={placeOrder} className='place-order'>
@@ -108,12 +121,12 @@ const PlaceOrder = () => {
                         <hr />
                         <div className="cart-total-details">
                             <p>Delivery Fee</p>
-                            <p>Rs. {getTotalCartAmount() === 0 ? 0 : 1}</p>
+                            <p>Rs. {getTotalCartAmount() === 0 ? 0 : 99}</p>
                         </div>
                         <hr />
                         <div className="cart-total-details">
                             <b>Total</b>
-                            <b>Rs. {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 1)}</b>
+                            <b>Rs. {getTotalCartAmount() + (getTotalCartAmount() === 0 ? 0 : 99)}</b>
                         </div>
                     </div>
                     <button type='submit'>PROCEED TO PAYMENT</button>
